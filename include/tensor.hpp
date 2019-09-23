@@ -5,6 +5,8 @@
 #include <vector>
 #include <sstream>
 #include <assert.h>
+#include <stdarg.h>
+#include <cstring>
 
 namespace TensorScript {
 		using namespace std;
@@ -15,6 +17,33 @@ namespace TensorScript {
 		class ValueError : public exception {
 		public:
 				explicit ValueError(const string &&msg) : _msg(msg) {}
+
+				const char *what() const noexcept override {
+					return _msg.c_str();
+				}
+
+		private:
+				string _msg;
+		};
+
+		/**
+		 * 自定义错误
+		 * */
+		class CustomError : public exception {
+		public:
+				explicit CustomError(const char *__restrict format, ...) {
+					va_list ap;
+					va_start(ap, format);
+
+					int max_len = strlen(format) + 4096;
+					auto buf = new char[max_len];
+					vsnprintf(buf, max_len, format, ap);
+
+					va_end(ap);
+
+					_msg = string(buf);
+					delete (buf);
+				}
 
 				const char *what() const noexcept override {
 					return _msg.c_str();
@@ -42,10 +71,13 @@ namespace TensorScript {
 
 				inline int operator()(int index) const { return _dims[index]; }
 
-				int index(const TensorShape &index) const {
+				int index(const initializer_list<int> &index) const {
+					vector<int> index_v(index);
+					check_index(index_v);
+
 					int ind = 0;
 					for (int i = 0; i < _dims.size(); i++) {
-						int step = index(i);
+						int step = index_v[i];
 						for (int j = i + 1; j < _dims.size(); j++) step *= _dims[j];
 						ind += step;
 					}
@@ -62,6 +94,21 @@ namespace TensorScript {
 					ss << ")";
 
 					return ss.str();
+				}
+
+		private:
+				void check_index(const vector<int> &index) const {
+					if (index.size() > ndim()) {
+						throw CustomError("IndexError：too many indices for array");
+					} else if (index.size() < ndim()) {
+						throw CustomError("IndexError：暂不支持切片");
+					}
+
+					for (int i = 0; i < _dims.size(); i++) {
+						if (index[i] > _dims[i]) {
+							throw CustomError("IndexError：index %d is out of bounds for axis %d with size %d", index[i], i, _dims[i]);
+						}
+					}
 				}
 
 		private:
@@ -98,12 +145,12 @@ namespace TensorScript {
 					_shape = shape;
 				}
 
-				T operator()(const TensorShape &index) const {
+				T operator()(const initializer_list<int> &index) const {
 					auto ind = _shape.index(index);
 					return data()[ind];
 				}
 
-				T &operator()(const TensorShape &index) {
+				T &operator()(const initializer_list<int> &index) {
 					auto ind = _shape.index(index);
 					return (data()[ind]);
 				}
