@@ -25,38 +25,6 @@ namespace TensorScript {
 		};
 
 		/**
-		 * 数据类型
-		 * */
-		enum DataType {
-				i8, i16, i32, i64, u8, u16, u32, u64, f16, f32, f64
-		};
-
-		/**
-		 * 获取元素大小
-		 * */
-		size_t getElementSize(DataType dtype) {
-			switch (dtype) {
-				case i8:
-				case u8:
-					return 1;
-				case i16:
-				case u16:
-				case f16:
-					return 2;
-				case i32:
-				case u32:
-				case f32:
-					return 4;
-				case i64:
-				case u64:
-				case f64:
-					return 8;
-				default:
-					assert(false);
-			}
-		}
-
-		/**
 		 * 张量的形状
 		 * */
 		class TensorShape {
@@ -108,16 +76,15 @@ namespace TensorScript {
 		/**
 		 * 张量
 		 * */
+		template<typename T>
 		class Tensor {
 		public:
-				Tensor(const TensorShape &shape, DataType dtype, string name)
-								: _shape(shape), _dtype(dtype), _name(move(name)) {
-					_data = make_shared<void>(malloc(shape.size() * getElementSize(dtype)), [](void *p) { free(p); });
+				explicit Tensor(const TensorShape &shape) : _shape(shape) {
+					_data = make_shared<T>(shape.size()*100);
 				}
 
-				Tensor(const TensorShape &shape, DataType dtype)
-								: _shape(shape), _dtype(dtype) {
-					_data = make_shared<void>(malloc(shape.size() * getElementSize(dtype)), [](void *p) { free(p); });
+				Tensor(string name, const TensorShape &shape) : _name(std::move(name)), _shape(shape) {
+					_data = make_shared<T>(shape.size());
 				}
 
 		public:
@@ -131,40 +98,39 @@ namespace TensorScript {
 					_shape = shape;
 				}
 
-				//Tensor asType(DataType data_type);
-
-				template<typename T>
-				T at(const TensorShape &index) {
+				T operator()(const TensorShape &index) const {
 					auto ind = _shape.index(index);
-					auto data = static_cast<T *> (_data.get());
-					return data[ind];
+					return data()[ind];
 				}
 
-				template<typename T>
-				T &at(const TensorShape &index) {
+				T &operator()(const TensorShape &index) {
 					auto ind = _shape.index(index);
-					auto data = static_cast<T *> (_data.get());
-					return data[ind];
+					return (data()[ind]);
+				}
+
+				void fill(T value) {
+					auto ptr = data();
+					for (auto i = 0; i < 2; i++, ptr++) {
+						*ptr = value;
+					}
 				}
 
 		public:
-				template<typename T>
-				inline T *data() const { return (T *) _data.get(); }
+				inline string name() const { return _name; }
 
-				inline const string &name() const { return _name; }
+				inline TensorShape shape() const { return _shape; }
 
-				inline const TensorShape shape() const { return _shape; }
+				inline T *data() const { return _data.get(); }
 
-				inline DataType dtype() const { return _dtype; }
-
-		private:
+		public:
 				string _name;
 				TensorShape _shape;
-				shared_ptr<void> _data;      // 允许多个张量共享同一块内存，例如：切片、广播
-				DataType _dtype;
+				shared_ptr<T> _data;
 		};
 
-		ostream &operator<<(ostream &stream, const Tensor &obj) {
+
+		template<typename T>
+		ostream &operator<<(ostream &stream, const Tensor<T> &obj) {
 			if (obj.name().empty())
 				return stream << "Tensor" << obj.shape().toString();
 			else
