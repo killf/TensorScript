@@ -31,13 +31,12 @@ namespace TensorScript {
 		public:
 				TensorShape() : _dims({}) {}
 
-				TensorShape(const initializer_list<int> &list) : _dims(list) {}
-
-				inline int size() const {
-					int total = 1;
-					for (auto i:_dims)total *= i;
-					return total;
+				TensorShape(const initializer_list<int> &list) : _dims(list) {
+					_size = 1;
+					for (auto i:_dims)_size *= i;
 				}
+
+				inline int size() const { return _size; }
 
 				inline int ndim() const { return _dims.size(); }
 
@@ -67,6 +66,7 @@ namespace TensorScript {
 
 		private:
 				vector<int> _dims;
+				int _size;
 		};
 
 		ostream &operator<<(ostream &stream, const TensorShape &obj) {
@@ -122,7 +122,7 @@ namespace TensorScript {
 
 				inline T *data() const { return _data.get(); }
 
-		public:
+		private:
 				string _name;
 				TensorShape _shape;
 				shared_ptr<T> _data;
