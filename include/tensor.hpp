@@ -80,11 +80,11 @@ namespace TensorScript {
 		class Tensor {
 		public:
 				explicit Tensor(const TensorShape &shape) : _shape(shape) {
-					_data = make_shared<T>(shape.size()*100);
+					_data.reset(new T[shape.size()]);
 				}
 
 				Tensor(string name, const TensorShape &shape) : _name(std::move(name)), _shape(shape) {
-					_data = make_shared<T>(shape.size());
+					_data.reset(new T[shape.size()]);
 				}
 
 		public:
@@ -110,7 +110,7 @@ namespace TensorScript {
 
 				void fill(T value) {
 					auto ptr = data();
-					for (auto i = 0; i < 2; i++, ptr++) {
+					for (auto i = 0; i < _shape.size(); i++, ptr++) {
 						*ptr = value;
 					}
 				}
@@ -127,7 +127,6 @@ namespace TensorScript {
 				TensorShape _shape;
 				shared_ptr<T> _data;
 		};
-
 
 		template<typename T>
 		ostream &operator<<(ostream &stream, const Tensor<T> &obj) {
