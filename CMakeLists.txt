@@ -4,6 +4,6 @@ include(CTest)
 
 set(CXX_STANDARD 11)
 
-add_library(TensorScript src/tensor.cpp)
+add_library(TensorScript src/tensor.cpp include/operation.hpp src/operation.cpu.cpp)
 
 add_subdirectory(test)
