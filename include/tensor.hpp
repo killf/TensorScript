@@ -131,7 +131,7 @@ namespace TensorScript {
 			stream << "(";
 			if (obj.ndim() > 0) stream << obj[0];
 			for (int i = 1; i < obj.ndim(); i++)stream << "," << obj[i];
-			stream << ")";
+			return stream << ")";
 		}
 
 		/**
