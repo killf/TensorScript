@@ -1,12 +1,22 @@
 #include "math.hpp"
 
 namespace TensorScript {
-		template<typename T>
-		void add(const Tensor<T> &a, const Tensor<T> &b, Tensor<T> &dst) {
-			for (int i = 0; i < a.shape().size(); i++) {
-				dst.data()[i] = a.data()[i] + b.data()[i];
+		void add(const Tensor &a, const Tensor &b, Tensor &dst) {
+			auto length = a.shape().size();
+			auto pa = a.data(), pb = b.data(), pc = dst.data();
+
+			for (int i = 0; i < length; i++, pa++, pb++, pc++) {
+				*pc = *pa + *pb;
 			}
 		}
-		template void add<float>(const Tensor<float> &a, const Tensor<float> &b, Tensor<float> &dst);
+
+		void sub(const Tensor &a, const Tensor &b, Tensor &dst) {
+			auto length = a.shape().size();
+			auto pa = a.data(), pb = b.data(), pc = dst.data();
+
+			for (int i = 0; i < length; i++, pa++, pb++, pc++) {
+				*pc = *pa - *pb;
+			}
+		}
 
 }

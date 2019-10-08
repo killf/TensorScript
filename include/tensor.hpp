@@ -103,7 +103,12 @@ namespace TensorScript {
 				 * */
 				inline string toString() const {
 					stringstream ss;
-					ss << this;
+
+					ss << "(";
+					if (ndim() > 0) ss << _dims[0];
+					for (int i = 1; i < ndim(); i++)ss << "," << _dims[i];
+					ss << ")";
+
 					return ss.str();
 				}
 
@@ -127,30 +132,24 @@ namespace TensorScript {
 				int _size = 1;
 		};
 
-		ostream &operator<<(ostream &stream, const TensorShape &obj) {
-			stream << "(";
-			if (obj.ndim() > 0) stream << obj[0];
-			for (int i = 1; i < obj.ndim(); i++)stream << "," << obj[i];
-			return stream << ")";
-		}
+		inline ostream &operator<<(ostream &stream, const TensorShape &obj) { return stream << obj; }
 
 		/**
 		 * 张量
 		 * */
-		template<typename T>
 		class Tensor {
 		public:
 				/**
 				 * 构造张量，并分配空间
 				 * */
 				explicit Tensor(const TensorShape &shape) : _shape(shape) {
-					_data.reset(new T[shape.size()]);
+					_data.reset(new float[shape.size()]);
 				}
 
 				/**
 				 * 构造张量，并使用指定的值进行初始化
 				 * */
-				Tensor(const TensorShape &shape, T value) : Tensor(shape) {
+				Tensor(const TensorShape &shape, float value) : Tensor(shape) {
 					fill(value);
 				}
 
@@ -171,7 +170,7 @@ namespace TensorScript {
 				/**
 				 * 使用指定的值填充张量
 				 * */
-				void fill(T value) {
+				void fill(float value) {
 					auto ptr = data();
 					for (auto i = 0; i < _shape.size(); i++, ptr++) {
 						*ptr = value;
@@ -182,21 +181,21 @@ namespace TensorScript {
 				 * 使用1填充张量，等价于`fill(1)`
 				 * */
 				inline void ones() {
-					fill(static_cast<T>(1));
+					fill(1);
 				}
 
 				/**
 				 * 使用0填充张量，等价于`fill(0)`
 				 * */
 				inline void zeros() {
-					fill(static_cast<T>(0));
+					fill(0);
 				}
 
 		public:
 				/**
 				 * 访问张量中的元素
 				 * */
-				T operator[](const initializer_list<int> &index) const {
+				float operator[](const initializer_list<int> &index) const {
 					auto ind = _shape.index(index);
 					return data()[ind];
 				}
@@ -204,20 +203,10 @@ namespace TensorScript {
 				/**
 				 * 访问张量中的元素
 				 * */
-				T &operator[](const initializer_list<int> &index) {
+				float &operator[](const initializer_list<int> &index) {
 					auto ind = _shape.index(index);
 					return (data()[ind]);
 				}
-
-				/**
-				 * 访问张量中的元素
-				 * */
-				inline T operator[](int index) const { return this[{index}]; }
-
-				/**
-				 * 访问张量中的元素
-				 * */
-				inline T &operator[](int index) { return this[{index}]; }
 
 				/**
 				 * 格式化
@@ -242,16 +231,16 @@ namespace TensorScript {
 				/**
 				 * 张量的地址
 				 * */
-				inline T *data() const { return _data.get(); }
+				inline float *data() const { return _data.get(); }
 
 		private:
 				string _name;
 				TensorShape _shape;
-				shared_ptr<T> _data;
+				shared_ptr<float> _data;
 		};
 
 		template<typename T>
-		ostream &operator<<(ostream &stream, const Tensor<T> &obj) {
+		ostream &operator<<(ostream &stream, const Tensor &obj) {
 			if (obj.name().empty())
 				return stream << "Tensor" << obj.shape().toString();
 			else

@@ -4,11 +4,9 @@
 #include "tensor.hpp"
 
 namespace TensorScript {
-		template<typename T>
-		void add(const Tensor <T> &a, const Tensor <T> &b, Tensor <T> &dst);
+		void add(const Tensor &a, const Tensor &b, Tensor &dst);
 
-		template<typename T>
-		void sub(const Tensor <T> &a, const Tensor <T> &b, Tensor <T> &dst);
+		void sub(const Tensor &a, const Tensor &b, Tensor &dst);
 }
 
 #endif //TENSORSCRIPT_MATH_HPP

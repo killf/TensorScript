@@ -5,7 +5,7 @@
 using namespace TensorScript;
 
 int main(int argc, char *argv[]) {
-	Tensor<float> a({3, 4}, 0);
+	Tensor a({3, 4}, 0);
 
 	auto *ptr = a.data();
 	for (int i = 0; i < 12; i++) printf("%f ", ptr[i]);

@@ -8,17 +8,11 @@
 using namespace TensorScript;
 
 int main(int argc, char *argv[]) {
-	printf("%G \n",0.f);
+	Tensor a({3, 4}, 1);
+	Tensor b({3, 4}, 2);
+	Tensor c({3, 4});
 
-	Tensor<float> a({3, 4}, 1);
-	Tensor<float> b({3, 4}, 2);
-	Tensor<float> c({3, 4});
-
-	//float *p=new((std::aligned_storage_t)64) float[512];
-
-	auto p = (float *) aligned_alloc(64, 512);
-	free(p);
-	//add(a, b, c);
+	add(a, b, c);
 
 	for (int i = 0; i < 12; i++) printf("%f ", c.data()[i]);
 	printf("\n");
