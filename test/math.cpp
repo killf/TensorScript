@@ -3,16 +3,27 @@
 #include <cstdlib>
 #include <cmath>
 
-template<typename T>
-void func(T a) {
-    if (std::is_same<T, int>::value) {
-        printf("123123\n");
-    }
+#include <tensor.hpp>
+#include <math.hpp>
+
+using namespace TensorScript;
+
+void test_add() {
+    Tensor<float> a({3, 4});
+    Tensor<float> b({3, 4});
+    Tensor<float> c({3, 4});
+
+    a.fill(3);
+    b.fill(4);
+
+    add(a, b, c);
+
+    for (int i = 0; i < 12; i++) printf("%f ", c.data()[i]);
+    printf("\n");
 }
 
 
 int main(int argc, char *argv[]) {
-    func(1);
-
+    test_add();
     return 0;
 }

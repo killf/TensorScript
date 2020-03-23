@@ -4,7 +4,7 @@ include(CTest)
 
 set(CXX_STANDARD 17)
 
-add_library(TensorScript src/tensor.cpp include/math.hpp src/math.cpp)
+add_library(TensorScript src/tensor.cpp src/math.cpp)
 
 include_directories(include)
 add_subdirectory(test)

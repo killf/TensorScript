@@ -1,4 +1,4 @@
-include_directories(../include)
+include_directories(include)
 
 add_executable(test_tensor tensor.cpp)
 target_link_libraries(test_tensor TensorScript)
