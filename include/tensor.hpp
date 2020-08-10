@@ -63,7 +63,7 @@ namespace TensorScript {
     /**
      * 构造TensorShape
      * */
-    TensorShape(const initializer_list<int> &list) : _dims(list) {
+    TensorShape(const initializer_list<size_t> &list) : _dims(list) {
       for (auto i:_dims)_size *= i;
     }
 
@@ -80,13 +80,13 @@ namespace TensorScript {
     /**
      * 访问指定的维度
      * */
-    inline int operator[](int index) const { return _dims[index]; }
+    inline int operator[](size_t index) const { return _dims[index]; }
 
     /**
      * 根据下表计算索引
      * */
-    int index(const initializer_list<int> &index) const {
-      vector<int> index_v(index);
+    int index(const initializer_list<size_t> &index) const {
+      vector<size_t> index_v(index);
       check_index(index_v);
 
       int ind = 0;
@@ -114,7 +114,7 @@ namespace TensorScript {
     }
 
   private:
-    void check_index(const vector<int> &index) const {
+    void check_index(const vector<size_t> &index) const {
       if (index.size() > ndim()) {
         throw CustomError("IndexError：too many indices for array");
       } else if (index.size() < ndim()) {
@@ -129,7 +129,7 @@ namespace TensorScript {
     }
 
   private:
-    vector<int> _dims;
+    vector<size_t> _dims;
     int _size = 1;
   };
 
@@ -172,32 +172,61 @@ namespace TensorScript {
     /**
      * 使用指定的值填充张量
      * */
-    void fill(float value) {
+    void fill(T value) {
       auto ptr = data();
       for (auto i = 0; i < _shape.size(); i++, ptr++) {
         *ptr = value;
       }
     }
 
+  public:
     /**
-     * 使用1填充张量，等价于`fill(1)`
+     * 创建一个张量，未初始化
      * */
-    inline void ones() {
-      fill(1);
+    static Tensor<T> *empty(const TensorShape &shape) {
+      return new Tensor(shape);
     }
 
     /**
-     * 使用0填充张量，等价于`fill(0)`
+     * 创建一个shape与target一样的张量，未初始化
      * */
-    inline void zeros() {
-      fill(0);
+    static Tensor<T> *empty_like(const Tensor &target) {
+      return new Tensor(target.shape());
+    }
+
+    /**
+     * 创建一个张量，初始化为0
+     * */
+    static Tensor<T> *zeros(const TensorShape &shape) {
+      return new Tensor(shape, 0);
+    }
+
+    /**
+     * 创建一个shape与target一样张量，初始化为0
+     * */
+    static Tensor<T> *zeros_like(const Tensor &target) {
+      return new Tensor(target.shape(), 0);
+    }
+
+    /**
+     * 创建一个张量，初始化为1
+     * */
+    static Tensor<T> *ones(const TensorShape &shape) {
+      return new Tensor(shape, 1);
+    }
+
+    /**
+     * 创建一个shape与target一样张量，初始化为1
+     * */
+    static Tensor<T> *ones_like(const Tensor &target) {
+      return new Tensor(target.shape(), 1);
     }
 
   public:
     /**
      * 访问张量中的元素
      * */
-    T operator[](const initializer_list<int> &index) const {
+    T operator[](const initializer_list<size_t> &index) const {
       auto ind = _shape.index(index);
       return data()[ind];
     }
@@ -205,7 +234,7 @@ namespace TensorScript {
     /**
      * 访问张量中的元素
      * */
-    T &operator[](const initializer_list<int> &index) {
+    T &operator[](const initializer_list<size_t> &index) {
       auto ind = _shape.index(index);
       return (data()[ind]);
     }
@@ -226,9 +255,23 @@ namespace TensorScript {
     inline string name() const { return _name; }
 
     /**
+   * 张量的shape
+   * */
+    inline size_t ndim() const { return _shape.size(); }
+
+    /**
      * 张量的shape
      * */
     inline TensorShape shape() const { return _shape; }
+
+    /**
+     * 张量的size
+     * */
+    inline size_t size() const {
+      size_t size = 1;
+      for (size_t i = 0; i < ndim(); i++) size *= _shape[i];
+      return size;
+    }
 
     /**
      * 张量的地址

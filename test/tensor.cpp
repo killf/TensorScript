@@ -11,8 +11,8 @@ int main(int argc, char *argv[]) {
   for (int i = 0; i < 12; i++) printf("%d ", ptr[i]);
   printf("\n");
 
-  for (int i = 0; i < 3; i++) {
-    for (int j = 0; j < 4; j++) {
+  for (size_t i = 0; i < 3; i++) {
+    for (size_t j = 0; j < 4; j++) {
       a[{i, j}] = i * 4 + j;
     }
   }
@@ -20,6 +20,6 @@ int main(int argc, char *argv[]) {
   for (int i = 0; i < 12; i++) printf("%d ", ptr[i]);
   printf("\n");
 
-  printf("%s\n", a.toString().c_str());
+  cout << a << endl;
   return 0;
 }
