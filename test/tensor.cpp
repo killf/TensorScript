@@ -19,5 +19,7 @@ int main(int argc, char *argv[]) {
 
   for (int i = 0; i < 12; i++) printf("%d ", ptr[i]);
   printf("\n");
+
+  printf("%s\n", a.toString().c_str());
   return 0;
 }

@@ -7,6 +7,7 @@
 #include <assert.h>
 #include <stdarg.h>
 #include <cstring>
+#include <type_traits>
 
 namespace TensorScript {
   using namespace std;
@@ -214,7 +215,7 @@ namespace TensorScript {
      * */
     inline string toString() const {
       stringstream ss;
-      ss << this;
+      ss << *this;
       return ss.str();
     }
 
@@ -234,6 +235,11 @@ namespace TensorScript {
      * */
     inline T *data() const { return _data.get(); }
 
+    /**
+     * 张量的类型
+     * */
+    inline const char *dtype() const { return typeid(T).name(); }
+
   private:
     string _name;
     TensorShape _shape;
@@ -243,9 +249,9 @@ namespace TensorScript {
   template<typename T>
   ostream &operator<<(ostream &stream, const Tensor<T> &obj) {
     if (obj.name().empty())
-      return stream << "Tensor" << obj.shape().toString();
+      return stream << "Tensor[" << obj.dtype() << "]:" << obj.shape().toString();
     else
-      return stream << "Tensor:" << obj.name() << obj.shape().toString();
+      return stream << "Tensor[" << obj.dtype() << "]:" << obj.name() << obj.shape().toString();
   }
 }
 
