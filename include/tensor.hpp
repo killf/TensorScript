@@ -8,6 +8,7 @@
 #include <stdarg.h>
 #include <cstring>
 #include <type_traits>
+#include <random>
 
 namespace TensorScript {
   using namespace std;
@@ -184,42 +185,65 @@ namespace TensorScript {
      * 创建一个张量，未初始化
      * */
     static Tensor<T> *empty(const TensorShape &shape) {
-      return new Tensor(shape);
+      return new Tensor<T>(shape);
     }
 
     /**
      * 创建一个shape与target一样的张量，未初始化
      * */
     static Tensor<T> *empty_like(const Tensor &target) {
-      return new Tensor(target.shape());
+      return new Tensor<T>(target.shape());
     }
 
     /**
      * 创建一个张量，初始化为0
      * */
     static Tensor<T> *zeros(const TensorShape &shape) {
-      return new Tensor(shape, 0);
+      return new Tensor<T>(shape, 0);
     }
 
     /**
      * 创建一个shape与target一样张量，初始化为0
      * */
     static Tensor<T> *zeros_like(const Tensor &target) {
-      return new Tensor(target.shape(), 0);
+      return new Tensor<T>(target.shape(), 0);
     }
 
     /**
      * 创建一个张量，初始化为1
      * */
     static Tensor<T> *ones(const TensorShape &shape) {
-      return new Tensor(shape, 1);
+      return new Tensor<T>(shape, 1);
     }
 
     /**
      * 创建一个shape与target一样张量，初始化为1
      * */
     static Tensor<T> *ones_like(const Tensor &target) {
-      return new Tensor(target.shape(), 1);
+      return new Tensor<T>(target.shape(), 1);
+    }
+
+    /**
+     * 创建一个张量，随机初始化
+     * */
+    static Tensor<T> *rand(const TensorShape &shape) {
+      auto tensor = new Tensor(shape);
+      auto ptr = tensor->data();
+      for (auto i = 0; i < tensor->size(); i++, ptr++) {
+        if (is_floating_point<T>::value) {
+          *ptr = static_cast<T>(std::rand()) / RAND_MAX;
+        } else {
+          *ptr = std::rand() % 100;
+        }
+      }
+      return tensor;
+    }
+
+    /**
+     * 创建一个shape与target一样张量，随机初始化
+     * */
+    static Tensor<T> *rand_like(const Tensor &target) {
+      return Tensor<T>::rand(target.shape());
     }
 
   public:
@@ -257,7 +281,7 @@ namespace TensorScript {
     /**
    * 张量的shape
    * */
-    inline size_t ndim() const { return _shape.size(); }
+    inline size_t ndim() const { return _shape.ndim(); }
 
     /**
      * 张量的shape
@@ -267,10 +291,13 @@ namespace TensorScript {
     /**
      * 张量的size
      * */
-    inline size_t size() const {
-      size_t size = 1;
-      for (size_t i = 0; i < ndim(); i++) size *= _shape[i];
-      return size;
+    inline size_t size() const { return _shape.size(); }
+
+    /**
+     * 张量的size
+     * */
+    inline size_t size(size_t axis) const {
+      return _shape[axis];
     }
 
     /**

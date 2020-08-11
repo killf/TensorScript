@@ -4,22 +4,32 @@
 
 using namespace TensorScript;
 
+template<typename T>
+void print_tensor(Tensor<T> *tensor) {
+  for (size_t i = 0; i < tensor->size(); i++) {
+    if (is_floating_point<T>::value)
+      printf("%f ", tensor->data()[i]);
+    else
+      printf("%d ", tensor->data()[i]);
+  }
+  printf("\n");
+}
+
 int main(int argc, char *argv[]) {
   Tensor<int> a({3, 4}, 0);
+  cout << a << endl;
 
-  auto *ptr = a.data();
-  for (int i = 0; i < 12; i++) printf("%d ", ptr[i]);
-  printf("\n");
-
+  print_tensor(&a);
   for (size_t i = 0; i < 3; i++) {
     for (size_t j = 0; j < 4; j++) {
       a[{i, j}] = i * 4 + j;
     }
   }
+  print_tensor(&a);
 
-  for (int i = 0; i < 12; i++) printf("%d ", ptr[i]);
-  printf("\n");
+  auto b = Tensor<float>::rand({3, 4});
+  print_tensor(b);
+  delete b;
 
-  cout << a << endl;
   return 0;
 }
